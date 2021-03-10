@@ -101,7 +101,7 @@ int main(int argc, char **argv) {
     pid_t child_pid = fork();
     if (child_pid >= 0) {
       // successful fork
-      printf("succesfull fork\n");
+
       active_child_processes += 1;
       if (child_pid == 0) {
         // child process
@@ -110,8 +110,15 @@ int main(int argc, char **argv) {
 
         if (with_files) {
           // use files here
+          FILE *f=fopen("temp_max.txt", "w");
+          for (int i=0; i<(i+array_size/pnum); i++){
+              if (*(array+i)>INT_MIN){
+                  fprintf(f, "%d",*(array+i));
+              }
+          }
         } else {
           // use pipe here
+
         }
         return 0;
       }
