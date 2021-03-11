@@ -98,23 +98,26 @@ int main(int argc, char **argv) {
   gettimeofday(&start_time, NULL);
 
   for (int i = 0; i < pnum; i++) {
+    int j=0;
     pid_t child_pid = fork();
     if (child_pid >= 0) {
       // successful fork
-
       active_child_processes += 1;
       if (child_pid == 0) {
         // child process
 
         // parallel somehow
-
         if (with_files) {
           // use files here
-          FILE *f=fopen("temp_max.txt", "w");
-          for (int i=0; i<(i+array_size/pnum); i++){
-              if (*(array+i)>INT_MIN){
-                  fprintf(f, "%d",*(array+i));
+          int mini=INT_MAX;
+          for(;j<(j+array_size/pnum);j++){
+              if(*(array+j)<mini){
+                  FILE *f=fopen("temp_min.txt", "w");
+                  mini=*(array+j);
+                  fprintf(f, "%d\n", mini);
+                  fclose(f);
               }
+              FILE *f=fopen("temp_max.txt", "w");
           }
         } else {
           // use pipe here
