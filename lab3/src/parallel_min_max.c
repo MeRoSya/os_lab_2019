@@ -112,12 +112,14 @@ int main(int argc, char **argv) {
           int mini=INT_MAX;
           for(;j<(j+array_size/pnum);j++){
               if(*(array+j)<mini){
-                  FILE *f=fopen("temp_min.txt", "w");
+                  FILE *f=fopen("temp_min.txt", "a");
                   mini=*(array+j);
                   fprintf(f, "%d\n", mini);
                   fclose(f);
               }
-              FILE *f=fopen("temp_max.txt", "w");
+          }
+          if (j<j+array_size/pnum){
+              j+=array_size/pnum;
           }
         } else {
           // use pipe here
@@ -134,7 +136,6 @@ int main(int argc, char **argv) {
 
   while (active_child_processes > 0) {
     // your code here
-
     active_child_processes -= 1;
   }
 
