@@ -16,7 +16,7 @@ int main(int argc, char **argv){
   } else if (pid==0){
       execv("/projects/os_lab_2019/lab3/src/sequential_min_max", argv);
   } else {
-      wait(&pid);
+      wait(NULL);
       printf("Success\n");
   }
 }
