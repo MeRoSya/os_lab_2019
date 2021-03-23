@@ -1,0 +1,23 @@
+CC = gcc
+
+all: task1 task3
+
+task1: parallel_min_max
+
+task3: process_memory
+
+parallel_min_max : utils.o find_min_max.o utils.h find_min_max.h
+	$(CC) parallel_min_max.c utils.o find_min_max.o -o parallel_min_max
+
+utils.o : utils.h
+	$(CC) -o utils.o -c utils.c
+
+find_min_max.o : utils.h find_min_max.h
+	$(CC) -o find_min_max.o -c find_min_max.c
+
+process_memory:
+	$(CC) process_memory.c -o process_memory
+
+clean:
+	rm parallel_min_max process_memory utils.o find_min_max.o
+
