@@ -1,0 +1,17 @@
+CC = gcc
+THREAD_FLAGS = -pthread -lpthread
+
+all: parallel_sum
+	rm utils.o sum.o
+
+parallel_sum: utils.o utils.h sum.o sum.h
+	$(CC) parallel_sum.c utils.o sum.o -o parallel_sum $(THREAD_FLAGS)
+
+utils.o: utils.h
+	$(CC) -o utils.o -c utils.c
+
+sum.o: sum.h
+	$(CC) -o sum.o -c sum.c
+
+clean:
+	rm parallel_sum utils.o sum.o

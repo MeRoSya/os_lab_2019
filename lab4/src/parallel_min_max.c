@@ -20,10 +20,10 @@ void signal_handler(int signal){
     
     kill(0,SIGKILL);
 }
-void signal_handler_child(int signal){
+/*void signal_handler_child(int signal){
     printf("I'm %d my parent is %d\nSIGKILL recieved\n",getpid(),getppid());
     kill(0, SIGKILL);
-}
+}*/
 int main(int argc, char **argv) {
   int seed = -1;
   int array_size = -1;
@@ -132,7 +132,7 @@ int main(int argc, char **argv) {
             alarm(timeout);
         }
     
-    sleep(2);
+    sleep(1);
   for (int i = 0; i < pnum; i++) {
 
     if (!with_files)
@@ -151,10 +151,10 @@ int main(int argc, char **argv) {
       active_child_processes += 1;
       if (child_pid == 0) {
         // child process
-        if(timeout>=0){
+        /*if(timeout>=0){
         signal(SIGTERM, signal_handler_child);
-        }
-        sleep(3);
+        }*/
+        sleep(1);
         // parallel somehow
         struct MinMax temp;
         if (i != pnum - 1)
@@ -228,7 +228,7 @@ int main(int argc, char **argv) {
   struct timeval finish_time;
   gettimeofday(&finish_time, NULL);
 
-  double elapsed_time = (finish_time.tv_sec - start_time.tv_sec-5) * 1000.0;
+  double elapsed_time = (finish_time.tv_sec - start_time.tv_sec-2) * 1000.0;
   elapsed_time += (finish_time.tv_usec - start_time.tv_usec) / 1000.0;
   
   
