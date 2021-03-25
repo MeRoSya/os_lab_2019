@@ -23,9 +23,9 @@ int main(int argc, char **argv) {
    *  array_size by command line arguments
    *	seed by command line arguments
    */
-   uint32_t threads_num = 0;
-   uint32_t array_size = 0;
-   uint32_t seed = 0;
+   uint32_t threads_num = -1;
+   uint32_t array_size = -1;
+   uint32_t seed = -1;
    while (true) {
 
        int current_optind = optind ? optind : 1;
