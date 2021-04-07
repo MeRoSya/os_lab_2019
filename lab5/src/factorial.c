@@ -7,7 +7,7 @@
 #include <getopt.h>
 
 struct FactArgs {
-  int current_value;
+  long long current_value;
   int current_n;
   int it_num;
 };
@@ -102,6 +102,6 @@ int main(int argc, char **argv){
     for (int i = 0; i < pnum; i++) {
         pthread_join(threads[i], NULL);
     }
-    printf("Factorial = %d\nFactorial mod = %d\n", args.current_value, args.current_value%mod);
+    printf("Factorial = %lld\nFactorial mod = %lld\n", args.current_value, args.current_value%mod);
     return 0;
 }
