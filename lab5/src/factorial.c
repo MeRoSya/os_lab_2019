@@ -11,19 +11,9 @@ struct FactArgs {
   int current_n;
   int it_num;
 };
-pthread_mutex_t mut = PTHREAD_MUTEX_INITIALIZER;
-void ThreadFact(struct FactArgs* args) {
-  for(int i=0; i<args->it_num; i++){
-        pthread_mutex_lock(&mut);
-        args->current_n--;
-        if(args->current_n==0){
-            break;
-        } else {
-        args->current_value *=args->current_n;
-        }
-        pthread_mutex_unlock(&mut);
-    }
-}
+
+pthread_mutex_t mut;
+void ThreadFact(struct FactArgs*);
 
 int main(int argc, char **argv){
     int k = -1;
@@ -61,7 +51,7 @@ int main(int argc, char **argv){
         case 'k':
             {
                 k=atoi(optarg);
-                if(k<=0) {
+                if(k<0) {
                     printf("k is a positive number\n");
                     return 1;
                 }
@@ -83,25 +73,50 @@ int main(int argc, char **argv){
         printf("Usage: %s -k \"num\" --pnum \"num\" --mod \"num\" \n", argv[0]);
         return 1;
     }
-    if (pnum>k){
-        printf("pnum is greater than k\nSo in case not to start unnessesery threads, pnum will equal to k\n");
-        pnum = k;
-    }
-    pthread_t threads[pnum];
-    struct FactArgs args;
-    args.it_num = k/pnum;
-    args.current_n = k;
-    args.current_value = k;
 
-    for(int i=0; i<pnum; i++){
-        if (pthread_create(&threads[i], NULL, (void*)ThreadFact, (void*)&args)) {
-            printf("Error: pthread_create failed!\n");
-            return 1;
+    struct FactArgs args;
+
+    if(k>0){
+
+        //Проверка количества тредов
+        if (pnum>k){
+            printf("pnum is greater than k\nSo in case not to start unnessesery threads, pnum will equal to k\n");
+            pnum = k;
         }
-    }
-    for (int i = 0; i < pnum; i++) {
-        pthread_join(threads[i], NULL);
+        pthread_t threads[pnum];
+        args.it_num = k/pnum;
+        args.current_n = k;
+        args.current_value = k;
+
+        //Создание тредов
+        for(int i=0; i<pnum; i++){
+            if (pthread_create(&threads[i], NULL, (void*)ThreadFact, (void*)&args)) {
+                printf("Error: pthread_create failed!\n");
+                return 1;
+            }
+        }
+
+        //Ожидание авершения тредов
+        for (int i = 0; i < pnum; i++) {
+            pthread_join(threads[i], NULL);
+        }
+
+    } else {
+        args.current_value=1;
     }
     printf("Factorial = %lld\nFactorial mod = %lld\n", args.current_value, args.current_value%mod);
     return 0;
+}
+
+void ThreadFact(struct FactArgs* args) {
+  for(int i=0; i<args->it_num; i++){
+        pthread_mutex_lock(&mut);
+        args->current_n--;
+        if(args->current_n==0){
+            break;
+        } else {
+        args->current_value *=args->current_n;
+        }
+        pthread_mutex_unlock(&mut);
+    }
 }
