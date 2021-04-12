@@ -127,7 +127,6 @@ int main(int argc, char **argv)
     struct sockaddr_in client;
     socklen_t client_len = sizeof(client);
     int client_fd = accept(server_fd, (struct sockaddr *)&client, &client_len);
-
     if (client_fd < 0)
     {
       fprintf(stderr, "Could not establish new connection\n");
@@ -168,12 +167,11 @@ int main(int argc, char **argv)
       for (uint32_t i = 0; i < tnum; i++)
       {
 
+        args[i].begin = (begin + i) * end / tnum;
         if (i != tnum - 1)
         {
-          args[i].begin = (begin + i) * end / tnum;
           args[i].end = (begin + i + 1) * end / tnum;
         } else {
-          args[i].begin = (begin + i) * end / tnum;
           args[i].end = args[i].begin+end / tnum;
         }
         args[i].mod = mod;
