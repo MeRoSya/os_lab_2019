@@ -119,7 +119,7 @@ int main(int argc, char **argv)
     char *temp = strtok(buff, ":");
     ConvertStringToUI64(temp, &to[servers_num - 1].port);
     temp = strtok(NULL, ":");
-    memcpy(to[servers_num - 1].ip, temp, sizeof(temp) + 1);
+    memcpy(to[servers_num - 1].ip, temp, sizeof(temp)+1);
     line_size = getline(&buff, &buff_size, serv_list);
   }
 
@@ -134,9 +134,9 @@ int main(int argc, char **argv)
   for (int i = 0; i < servers_num; i++)
   {
 
-    struct hostent *hostname = gethostbyname(to[i].ip);
-    if (hostname == NULL)
-    {
+    struct hostent *hostname = gethostbyname("127.0.0.1"/*to[i].ip*/); //vscode спокойно считывал ip с файла, но здесь 
+    if (hostname == NULL)                                  //он считывает некий лишний битый бит, что делает строку некорректной
+    {                                                      //(возможно это индикатор переноса)
       fprintf(stderr, "gethostbyname failed with %s\n", to[i].ip);
       exit(1);
     }

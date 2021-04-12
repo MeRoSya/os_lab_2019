@@ -5,10 +5,10 @@ all: multiplying.o libmultiplying.a server.o client.o server client
 	rm multiplying.o server.o client.o
 
 server: server.c Multiplying.h
-	$(CC) $(CFLAGS) server.o -L. -lmultiplying -o server
+	$(CC) $(CFLAGS) server.o -pthread -L. -lmultiplying -o server
 
 client: client.c Multiplying.h
-	$(CC) $(CFLAGS) client.o -L. -lmultiplying -o client
+	$(CC) $(CFLAGS) client.o -pthread -L. -lmultiplying -o client
 
 libmultiplying.a: multiplying.o
 	ar rcs libmultiplying.a multiplying.o
