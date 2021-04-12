@@ -127,13 +127,13 @@ int main(int argc, char **argv)
 
   // TODO: work continiously, rewrite to make parallel
   uint64_t final_result = 1;
-  servers_num--;
-  if(servers_num>=k){
+  if (servers_num >= k)
+  {
     servers_num = k;
   }
   for (int i = 0; i < servers_num; i++)
   {
-    
+
     struct hostent *hostname = gethostbyname(to[i].ip);
     if (hostname == NULL)
     {
@@ -152,37 +152,36 @@ int main(int argc, char **argv)
       fprintf(stderr, "Socket creation failed!\n");
       exit(1);
     }
-    
+
     if (connect(sck, (struct sockaddr *)&server, sizeof(server)) < 0)
     {
       fprintf(stderr, "Connection failed\n");
       exit(1);
     }
-    
+
     // TODO: for one server
     // parallel between servers
-    uint64_t begin = i * k/ servers_num+1;
+    uint64_t begin = i * k / servers_num + 1;
     uint64_t end;
     if (i != servers_num - 1)
-        {
-          end = (i+1) * k/ servers_num;
-        } else {
-          end = begin+k / servers_num-1;
-        }
+    {
+      end = (i + 1) * k / servers_num;
+    }
+    else
+    {
+      end = begin + k / servers_num - 1;
+    }
 
     char task[sizeof(uint64_t) * 3];
     memcpy(task, &begin, sizeof(uint64_t));
     memcpy(task + sizeof(uint64_t), &end, sizeof(uint64_t));
     memcpy(task + 2 * sizeof(uint64_t), &mod, sizeof(uint64_t));
-    
 
     if (send(sck, task, sizeof(task), 0) < 0)
     {
       fprintf(stderr, "Send failed\n");
       exit(1);
     }
-
-    
 
     char response[sizeof(uint64_t)];
     if (recv(sck, response, sizeof(response), 0) < 0)

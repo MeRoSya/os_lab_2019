@@ -25,7 +25,6 @@ uint64_t Factorial(const struct FactorialArgs *args)
 {
   uint64_t ans = 1;
 
-
   for (int i = args->begin; i < args->end; i++)
   {
     ans = MultModulo(ans, i, args->mod);
@@ -163,16 +162,27 @@ int main(int argc, char **argv)
 
       fprintf(stdout, "Receive: %llu %llu %llu\n", begin, end, mod);
 
+      if (tnum > (end - begin))
+      {
+        tnum = (end - begin);
+      }
+      else if (tnum < (end - begin))
+      {
+        tnum = (end - begin) / 2;
+      }
+
       struct FactorialArgs args[tnum];
       for (uint32_t i = 0; i < tnum; i++)
       {
 
-        args[i].begin = (begin + i) * end / tnum;
+        args[i].begin = (begin + i) * (end - begin) / tnum;
         if (i != tnum - 1)
         {
-          args[i].end = (begin + i + 1) * end / tnum;
-        } else {
-          args[i].end = args[i].begin+end / tnum;
+          args[i].end = (begin + i + 1) * (end - begin) / tnum + 1;
+        }
+        else
+        {
+          args[i].end = args[i].begin + (end - begin) / tnum + 1;
         }
         args[i].mod = mod;
 
