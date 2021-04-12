@@ -21,7 +21,7 @@ int main(){
 
 void func1(){
     pthread_mutex_lock(&mutex2);    //Захват 2 мьютекса 1 тредом
-    sleep(1);
+    sleep(5);
     pthread_mutex_lock(&mutex1);    //Неудачная попытка захвата 1 мьютекса 1 тредом
     printf("Thread1\n");
     pthread_mutex_unlock(&mutex1);
