@@ -1,16 +1,26 @@
 CC = gcc
 CFLAGS =-g
 
-all: multiplying.o server client 
+all: multiplying.o libmultiplying.a server.o client.o server client 
+	rm multiplying.o server.o client.o
 
 server: server.c Multiplying.h
-	$(CC) $(CFLAGS) server.c -pthreads multiplying.o -o server
+	$(CC) $(CFLAGS) server.o -L. -lmultiplying -o server
 
 client: client.c Multiplying.h
-	$(CC) $(CFLAGS) client.c multiplying.o -o client
+	$(CC) $(CFLAGS) client.o -L. -lmultiplying -o client
+
+libmultiplying.a: multiplying.o
+	ar rcs libmultiplying.a multiplying.o
+
+server.o: server.c Multiplying.h
+	$(CC) $(CFLAGS) -c server.c -o server.o
+
+client.o: client.c Multiplying.h
+	$(CC) $(CFLAGS) -c client.c -o client.o
 
 multiplying.o: Multiplying.c Multiplying.h
-	$(CC) -c -g Multiplying.c
+	$(CC) -c -g Multiplying.c -o multiplying.o
 
 clean:
-	rm server client multiplying.o
+	rm server client libmultiplying.a

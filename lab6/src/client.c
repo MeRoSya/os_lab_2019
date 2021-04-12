@@ -14,16 +14,18 @@
 
 #include "Multiplying.h"
 
-struct Server {
+struct Server
+{
   char ip[255];
-  int port;
+  uint64_t port;
 };
 
-
-bool ConvertStringToUI64(const char *str, uint64_t *val) {
+bool ConvertStringToUI64(const char *str, uint64_t *val)
+{
   char *end = NULL;
   unsigned long long i = strtoull(str, &end, 10);
-  if (errno == ERANGE) {
+  if (errno == ERANGE)
+  {
     fprintf(stderr, "Out of uint64_t range: %s\n", str);
     return false;
   }
@@ -35,12 +37,14 @@ bool ConvertStringToUI64(const char *str, uint64_t *val) {
   return true;
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char **argv)
+{
   uint64_t k = -1;
   uint64_t mod = -1;
   char servers[255] = {'\0'}; // TODO: explain why 255
 
-  while (true) {
+  while (true)
+  {
     int current_optind = optind ? optind : 1;
 
     static struct option options[] = {{"k", required_argument, 0, 0},
@@ -54,9 +58,12 @@ int main(int argc, char **argv) {
     if (c == -1)
       break;
 
-    switch (c) {
-    case 0: {
-      switch (option_index) {
+    switch (c)
+    {
+    case 0:
+    {
+      switch (option_index)
+      {
       case 0:
         ConvertStringToUI64(optarg, &k);
         // TODO: your code here
@@ -72,7 +79,8 @@ int main(int argc, char **argv) {
       default:
         printf("Index %d is out of options\n", option_index);
       }
-    } break;
+    }
+    break;
 
     case '?':
       printf("Arguments error\n");
@@ -82,23 +90,47 @@ int main(int argc, char **argv) {
     }
   }
 
-  if (k == -1 || mod == -1 || !strlen(servers)) {
+  if (k == -1 || mod == -1 || !strlen(servers))
+  {
     fprintf(stderr, "Using: %s --k 1000 --mod 5 --servers /path/to/file\n",
             argv[0]);
     return 1;
   }
 
   // TODO: for one server here, rewrite with servers from file
-  unsigned int servers_num = 1;
+  FILE *serv_list;
+  if (!(serv_list = fopen(servers, "r")))
+  {
+    return 1;
+  }
+
+  unsigned int servers_num = 0;
   struct Server *to = malloc(sizeof(struct Server) * servers_num);
+  char *buff = NULL;
+  size_t buff_size = 0;
+  ssize_t line_size;
+
+  line_size = getline(&buff, &buff_size, serv_list);
+
+  while (line_size > 0)
+  {
+    servers_num++;
+    to = realloc(to, sizeof(struct Server) * servers_num);
+    char *temp = strtok(buff, ":");
+    ConvertStringToUI64(temp, &to[servers_num - 1].port);
+    temp = strtok(NULL, ":");
+    memcpy(to[servers_num - 1].ip, temp, sizeof(temp) + 1);
+    line_size = getline(&buff, &buff_size, serv_list);
+  }
+
   // TODO: delete this and parallel work between servers
-  to[0].port = 20001;
-  memcpy(to[0].ip, "127.0.0.1", sizeof("127.0.0.1"));
 
   // TODO: work continiously, rewrite to make parallel
-  for (int i = 0; i < servers_num; i++) {
+  for (int i = 0; i < 1; i++)
+  {
     struct hostent *hostname = gethostbyname(to[i].ip);
-    if (hostname == NULL) {
+    if (hostname == NULL)
+    {
       fprintf(stderr, "gethostbyname failed with %s\n", to[i].ip);
       exit(1);
     }
@@ -109,12 +141,14 @@ int main(int argc, char **argv) {
     server.sin_addr.s_addr = *((unsigned long *)hostname->h_addr);
 
     int sck = socket(AF_INET, SOCK_STREAM, 0);
-    if (sck < 0) {
+    if (sck < 0)
+    {
       fprintf(stderr, "Socket creation failed!\n");
       exit(1);
     }
 
-    if (connect(sck, (struct sockaddr *)&server, sizeof(server)) < 0) {
+    if (connect(sck, (struct sockaddr *)&server, sizeof(server)) < 0)
+    {
       fprintf(stderr, "Connection failed\n");
       exit(1);
     }
@@ -129,13 +163,15 @@ int main(int argc, char **argv) {
     memcpy(task + sizeof(uint64_t), &end, sizeof(uint64_t));
     memcpy(task + 2 * sizeof(uint64_t), &mod, sizeof(uint64_t));
 
-    if (send(sck, task, sizeof(task), 0) < 0) {
+    if (send(sck, task, sizeof(task), 0) < 0)
+    {
       fprintf(stderr, "Send failed\n");
       exit(1);
     }
 
     char response[sizeof(uint64_t)];
-    if (recv(sck, response, sizeof(response), 0) < 0) {
+    if (recv(sck, response, sizeof(response), 0) < 0)
+    {
       fprintf(stderr, "Recieve failed\n");
       exit(1);
     }

@@ -25,11 +25,11 @@ uint64_t Factorial(const struct FactorialArgs *args)
 {
   uint64_t ans = 1;
 
+
   for (int i = args->begin; i < args->end; i++)
   {
     ans = MultModulo(ans, i, args->mod);
   }
-
   return ans;
 }
 
@@ -98,7 +98,6 @@ int main(int argc, char **argv)
     fprintf(stderr, "Can not create server socket!");
     return 1;
   }
-
   struct sockaddr_in server;
   server.sin_family = AF_INET;
   server.sin_port = htons((uint16_t)port);
