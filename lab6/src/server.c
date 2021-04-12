@@ -162,27 +162,28 @@ int main(int argc, char **argv)
 
       fprintf(stdout, "Receive: %llu %llu %llu\n", begin, end, mod);
 
+      uint64_t tmp_tnum;
       if (tnum > (end - begin))
       {
-        tnum = (end - begin);
+        tmp_tnum = (end - begin);
       }
-      else if (tnum < (end - begin))
+      else if (tnum <= (end - begin))
       {
-        tnum = (end - begin) / 2;
+        tmp_tnum = (end - begin) / 2;
       }
 
-      struct FactorialArgs args[tnum];
-      for (uint32_t i = 0; i < tnum; i++)
+      struct FactorialArgs args[tmp_tnum];
+      for (uint32_t i = 0; i < tmp_tnum; i++)
       {
 
-        args[i].begin = (begin + i) * (end - begin) / tnum;
+        args[i].begin = (begin + i) * (end - begin) / tmp_tnum;
         if (i != tnum - 1)
         {
-          args[i].end = (begin + i + 1) * (end - begin) / tnum + 1;
+          args[i].end = (begin + i + 1) * (end - begin) / tmp_tnum + 1;
         }
         else
         {
-          args[i].end = args[i].begin + (end - begin) / tnum + 1;
+          args[i].end = args[i].begin + (end - begin) / tmp_tnum + 1;
         }
         args[i].mod = mod;
 
@@ -195,7 +196,7 @@ int main(int argc, char **argv)
       }
 
       uint64_t total = 1;
-      for (uint32_t i = 0; i < tnum; i++)
+      for (uint32_t i = 0; i < tmp_tnum; i++)
       {
         uint64_t result = 0;
         pthread_join(threads[i], (void **)&result);
