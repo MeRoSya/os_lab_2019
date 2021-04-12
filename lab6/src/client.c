@@ -163,13 +163,17 @@ int main(int argc, char **argv)
     // parallel between servers
     uint64_t begin = i * k / servers_num + 1;
     uint64_t end;
+    
     if (i != servers_num - 1)
     {
       end = (i + 1) * k / servers_num;
     }
     else
     {
-      end = begin + k / servers_num - 1;
+      end = begin + k / servers_num;
+      if(k%2==0){
+        end--;
+      }
     }
 
     char task[sizeof(uint64_t) * 3];
