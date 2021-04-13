@@ -114,13 +114,27 @@ int main(int argc, char **argv)
     {
       switch (option_index)
       {
-      case 0:
+      case 0:{
         ConvertStringToUI64(optarg, &k);
         // TODO: your code here
+        if(k<0){
+          printf("k must not be negative\n");
+          return 1;
+        }
+      }
         break;
-      case 1:
+      case 1:{
         ConvertStringToUI64(optarg, &mod);
         // TODO: your code here
+        if(mod<0){
+          printf("mod must not be negative\n");
+          return 1;
+        }
+        if(mod>=INT64_MAX){
+          printf("mod is too big");
+          return 1;
+        }
+      }
         break;
       case 2:
         // TODO: your code here
@@ -151,6 +165,7 @@ int main(int argc, char **argv)
   FILE *serv_list;
   if (!(serv_list = fopen(servers, "r")))
   {
+    printf("%s doesn't exist", servers);
     return 1;
   }
 

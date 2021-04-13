@@ -64,13 +64,27 @@ int main(int argc, char **argv)
       switch (option_index)
       {
       case 0:
+      {
         port = atoi(optarg);
         // TODO: your code here
-        break;
+        if (port <= 0)
+        {
+          printf("port must be positive\n");
+          return 1;
+        }
+      }
+      break;
       case 1:
+      {
         tnum = atoi(optarg);
         // TODO: your code here
-        break;
+        if (tnum <= 0)
+        {
+          printf("tnum must be positive\n");
+          return 1;
+        }
+      }
+      break;
       default:
         printf("Index %d is out of options\n", option_index);
       }
