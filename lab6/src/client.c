@@ -4,6 +4,7 @@
 #include <string.h>
 #include <unistd.h>
 
+#include <pthread.h>
 #include <errno.h>
 #include <getopt.h>
 #include <netdb.h>
@@ -19,6 +20,55 @@ struct Server
   char ip[255];
   uint64_t port;
 };
+
+struct ThreadArgs
+{
+  struct Server server;
+  char task[sizeof(uint64_t) * 3];
+  char rec_info[sizeof(uint64_t)];
+};
+
+void ThreadServers(struct ThreadArgs *args)
+{
+  struct hostent *hostname = gethostbyname("127.0.0.1" /*to[i].ip*/); //vscode спокойно считывал ip с файла, но здесь
+  if (hostname == NULL)                                               //он считывает некий лишний битый бит, что делает строку некорректной
+  {                                                                   //(возможно это индикатор переноса)
+    fprintf(stderr, "gethostbyname failed with %s\n", args->server.ip);
+    exit(1);
+  }
+
+  struct sockaddr_in server;
+  server.sin_family = AF_INET;
+  server.sin_port = htons(args->server.port);
+  server.sin_addr.s_addr = *((unsigned long *)hostname->h_addr);
+
+  int sck = socket(AF_INET, SOCK_STREAM, 0);
+  if (sck < 0)
+  {
+    fprintf(stderr, "Socket creation failed!\n");
+    exit(1);
+  }
+
+  if (connect(sck, (struct sockaddr *)&server, sizeof(server)) < 0)
+  {
+    fprintf(stderr, "Connection failed\n");
+    exit(1);
+  }
+
+  if (send(sck, args->task, sizeof(args->task), 0) < 0)
+  {
+    fprintf(stderr, "Send failed\n");
+    exit(1);
+  }
+
+  char response[sizeof(uint64_t)];
+  if (recv(sck, args->rec_info, sizeof(response), 0) < 0)
+  {
+    fprintf(stderr, "Recieve failed\n");
+    exit(1);
+  }
+  close(sck);
+}
 
 bool ConvertStringToUI64(const char *str, uint64_t *val)
 {
@@ -119,7 +169,7 @@ int main(int argc, char **argv)
     char *temp = strtok(buff, ":");
     ConvertStringToUI64(temp, &to[servers_num - 1].port);
     temp = strtok(NULL, ":");
-    memcpy(to[servers_num - 1].ip, temp, sizeof(temp)+1);
+    memcpy(to[servers_num - 1].ip, temp, sizeof(temp) + 1);
     line_size = getline(&buff, &buff_size, serv_list);
   }
 
@@ -131,77 +181,50 @@ int main(int argc, char **argv)
   {
     servers_num = k;
   }
+
+  struct ThreadArgs args[servers_num];
+
+  pthread_t threads[servers_num];
+
   for (int i = 0; i < servers_num; i++)
   {
-
-    struct hostent *hostname = gethostbyname("127.0.0.1"/*to[i].ip*/); //vscode спокойно считывал ip с файла, но здесь 
-    if (hostname == NULL)                                  //он считывает некий лишний битый бит, что делает строку некорректной
-    {                                                      //(возможно это индикатор переноса)
-      fprintf(stderr, "gethostbyname failed with %s\n", to[i].ip);
-      exit(1);
-    }
-
-    struct sockaddr_in server;
-    server.sin_family = AF_INET;
-    server.sin_port = htons(to[i].port);
-    server.sin_addr.s_addr = *((unsigned long *)hostname->h_addr);
-
-    int sck = socket(AF_INET, SOCK_STREAM, 0);
-    if (sck < 0)
-    {
-      fprintf(stderr, "Socket creation failed!\n");
-      exit(1);
-    }
-
-    if (connect(sck, (struct sockaddr *)&server, sizeof(server)) < 0)
-    {
-      fprintf(stderr, "Connection failed\n");
-      exit(1);
-    }
 
     // TODO: for one server
     // parallel between servers
     uint64_t begin = i * k / servers_num + 1;
     uint64_t end;
-    
+
     if (i != servers_num - 1)
     {
       end = (i + 1) * k / servers_num;
     }
     else
     {
-      end = begin + k / servers_num;
-      if(k%2==0){
-        end--;
-      }
+      end = k;
     }
 
-    char task[sizeof(uint64_t) * 3];
-    memcpy(task, &begin, sizeof(uint64_t));
-    memcpy(task + sizeof(uint64_t), &end, sizeof(uint64_t));
-    memcpy(task + 2 * sizeof(uint64_t), &mod, sizeof(uint64_t));
+    args[i].server = to[i];
 
-    if (send(sck, task, sizeof(task), 0) < 0)
+    memcpy(args[i].task, &begin, sizeof(uint64_t));
+    memcpy(args[i].task + sizeof(uint64_t), &end, sizeof(uint64_t));
+    memcpy(args[i].task + 2 * sizeof(uint64_t), &mod, sizeof(uint64_t));
+
+    if (pthread_create(&threads[i], NULL, (void *)ThreadServers, (void *)&args[i]))
     {
-      fprintf(stderr, "Send failed\n");
-      exit(1);
+      printf("Error: pthread_create failed!\n");
+      return 1;
     }
-
-    char response[sizeof(uint64_t)];
-    if (recv(sck, response, sizeof(response), 0) < 0)
-    {
-      fprintf(stderr, "Recieve failed\n");
-      exit(1);
-    }
-
-    // TODO: from one server
-    // unite results
-    uint64_t answer = 0;
-    memcpy(&answer, response, sizeof(uint64_t));
-    final_result = MultModulo(final_result, answer, mod);
-    //printf("Answer: %llu\n", answer,final_result);
-    close(sck);
   }
+
+  for (uint32_t i = 0; i < servers_num; i++)
+  {
+    pthread_join(threads[i], NULL);
+    uint64_t answer;
+    memcpy(&answer, args[i].rec_info, sizeof(uint64_t));
+    printf("%llu\n", answer);
+    final_result = MultModulo(final_result, answer, mod);
+  }
+
   free(to);
   printf("Answer: %llu\n", final_result);
   return 0;
