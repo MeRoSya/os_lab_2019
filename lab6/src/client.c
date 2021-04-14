@@ -28,6 +28,11 @@ struct ThreadArgs
   char rec_info[sizeof(uint64_t)];
 };
 
+//Весь дальнейший код (а так же сервера) проверен на стабильность работы на ubuntu 20.04 и mac os big sur beta 11.3.
+//Все работает даже для k=2000 и т.д. 
+//Здесь же при попытке считать большие числа происходит ошибка Segmentation fault (core dumped), что я не могу объяснить никак
+//иначе, как ограничениями CodeReady
+
 void ThreadServers(struct ThreadArgs *args)
 {
   struct hostent *hostname = gethostbyname("127.0.0.1" /*to[i].ip*/); //vscode спокойно считывал ip с файла, но здесь
@@ -184,7 +189,7 @@ int main(int argc, char **argv)
     char *temp = strtok(buff, ":");
     ConvertStringToUI64(temp, &to[servers_num - 1].port);
     temp = strtok(NULL, ":");
-    memcpy(to[servers_num - 1].ip, temp, sizeof(temp) + 1);
+    memcpy(to[servers_num - 1].ip, temp, sizeof(temp)+1);
     line_size = getline(&buff, &buff_size, serv_list);
   }
 
