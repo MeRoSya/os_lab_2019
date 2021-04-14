@@ -179,25 +179,25 @@ int main(int argc, char **argv)
       uint64_t tmp_tnum;
       if (tnum > (end - begin))
       {
-        tmp_tnum = (end - begin);
+        tmp_tnum = (end - begin)+1;
       }
       else if (tnum <= (end - begin))
       {
-        tmp_tnum = (end - begin) / 2;
+        tmp_tnum = (end - begin) / 2+1;
       }
 
       struct FactorialArgs args[tmp_tnum];
       for (uint32_t i = 0; i < tmp_tnum; i++)
       {
 
-        args[i].begin = (begin + i) * (end - begin) / tmp_tnum;
-        if (i != tnum - 1)
+        args[i].begin = (begin + i) * (end - begin+1) / tmp_tnum;
+        if (i != tmp_tnum - 1)
         {
-          args[i].end = (begin + i + 1) * (end - begin) / tmp_tnum + 1;
+          args[i].end = (begin + i + 1) * (end - begin+1) / tmp_tnum;
         }
         else
         {
-          args[i].end = args[i].begin + (end - begin) / tmp_tnum + 1;
+          args[i].end = args[i].begin + (end - begin+1) / tmp_tnum;
         }
         args[i].mod = mod;
 
@@ -212,7 +212,7 @@ int main(int argc, char **argv)
       uint64_t total = 1;
       for (uint32_t i = 0; i < tmp_tnum; i++)
       {
-        uint64_t result = 0;
+        uint64_t result=1;
         pthread_join(threads[i], (void **)&result);
         total = MultModulo(total, result, mod);
       }

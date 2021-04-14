@@ -241,7 +241,6 @@ int main(int argc, char **argv)
     pthread_join(threads[i], NULL);
     uint64_t answer;
     memcpy(&answer, args[i].rec_info, sizeof(uint64_t));
-    printf("%llu\n", answer);
     final_result = MultModulo(final_result, answer, mod);
   }
 
