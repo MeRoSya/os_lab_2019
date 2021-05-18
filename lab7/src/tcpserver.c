@@ -20,15 +20,19 @@ int main(int argc, char* argv[]) {
   int port;
   
   if (argc < 3) {
-    printf("Usage: %s {port} {buffsize}\n", argv[0]);
+    printf("Usage: %s <port> <buffsize>\n", argv[0]);
     exit(1);
   } else {
     port=atoi(argv[1]);
-    if (!(port>0))
-      printf("port must be positive number");
+    if (!(port>0)){
+      printf("<port> must be positive number");
+      exit(1);
+    }
     bufsize=atoi(argv[2]);
-    if (!(bufsize>0))
-      printf("buffsize must be positive number");
+    if (!(bufsize>0)){
+      printf("<buffsize> must be positive number");
+      exit(1);
+    }
   }
 
   struct sockaddr_in servaddr;

@@ -21,12 +21,14 @@ int main(int argc, char *argv[]) {
   struct sockaddr_in servaddr;
 
   if (argc < 4) {
-    printf("Usage: %s {ip_addr} {port} {buffsize}\n", argv[0]);
+    printf("Usage: %s <ip_addr> <port> <buffsize>\n", argv[0]);
     exit(1);
   } else {
     bufsize=atoi(argv[3]);
-    if(!(bufsize>0))
-      printf("buffsize must be positive number");
+    if(!(bufsize>0)){
+      printf("<buffsize> must be positive number");
+      exit(1);
+    }
   }
 
   char buf[bufsize];
