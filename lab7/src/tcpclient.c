@@ -6,20 +6,30 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <getopt.h>
+#include <stdbool.h>
 
-#define BUFSIZE 100
+//#define BUFFSIZE 1000
 #define SADDR struct sockaddr
 #define SIZE sizeof(struct sockaddr_in)
+
 
 int main(int argc, char *argv[]) {
   int fd;
   int nread;
-  char buf[BUFSIZE];
+  int bufsize;
   struct sockaddr_in servaddr;
-  if (argc < 3) {
-    printf("Too few arguments \n");
+
+  if (argc < 4) {
+    printf("Usage: %s {ip_addr} {port} {buffsize}\n", argv[0]);
     exit(1);
+  } else {
+    bufsize=atoi(argv[3]);
+    if(!(bufsize>0))
+      printf("buffsize must be positive number");
   }
+
+  char buf[bufsize];
 
   if ((fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
     perror("socket creating");
@@ -42,7 +52,7 @@ int main(int argc, char *argv[]) {
   }
 
   write(1, "Input message to send\n", 22);
-  while ((nread = read(0, buf, BUFSIZE)) > 0) {
+  while ((nread = read(0, buf, bufsize)) > 0) {
     if (write(fd, buf, nread) < 0) {
       perror("write");
       exit(1);

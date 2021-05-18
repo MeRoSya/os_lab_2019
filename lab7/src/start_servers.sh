@@ -1,3 +1,3 @@
 #!/bin/bash
-./tcpserver &
+./tcpserver 10050 100 &
 ./udpserver &
